@@ -1,0 +1,23 @@
+.footer {
+    background-color: #000;
+    color: #fff;
+}
+.footer-left p {
+    display: block;
+    margin-top: 25px;
+}
+.footer-right .event, .footer-right .legal {
+    margin-bottom: 20px;
+}
+.footer-right a {
+    display: block;
+    margin-bottom: 20px;
+    text-decoration: none;
+    color: #fff;
+    font-weight: 100;
+    line-height: 150%;
+    pointer-events: auto;
+}
+.footer-right a:hover {
+    color: #ffffff;
+}
