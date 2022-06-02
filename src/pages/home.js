@@ -18,6 +18,13 @@ const Home = ({ data }) => {
         setCategories(data?.allRestApiCategories?.nodes)
         console.log("----",data,data?.allRestApiCategories?.nodes,categories)
 
+        //To fetch data at run time using Gatsby fetch API
+        // fetch(`http://20.114.244.229:1337/events`)
+        // .then(response => response.json()) // parse JSON from request
+        // .then(resultData => {
+        //   console.log(resultData)
+        // })
+
     //}).catch(error=> console.log(error.message))
   },[data])
 
