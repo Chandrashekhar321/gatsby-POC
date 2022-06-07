@@ -1,7 +1,7 @@
 const initialState = {
     loading: false,
     events: [],
-    error: ''
+    eventsError: ''
 }
 
 const eventReducer = (state=initialState, action)=> {
@@ -13,15 +13,17 @@ const eventReducer = (state=initialState, action)=> {
             }
         case 'FETCH_EVENTS_SUCCESS':
             return {
+                ...state,
                 loading: false,
                 events: action.payload,
-                error: ''
+                eventsError: ''
             }
         case 'FETCH_EVENTS_ERROR':
             return {
+                ...state,
                 loading: false,
                 events: [],
-                error: action.payload
+                eventsError: action.payload
             }
         default:
             return state

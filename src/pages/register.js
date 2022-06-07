@@ -54,7 +54,9 @@ const Register = () => {
         <div style={formContainer} className="my-3">
           <div className="form-group">
             <label htmlFor="username">Username</label>
-            <input type="text" className="form-control" id="username"/>
+            <input type="text" className="form-control" id="username"
+              onChange={formik.handleChange}
+              value={formik.values.username}/>
           </div>
           <div className="form-group">
             <label htmlFor="email">Email</label>

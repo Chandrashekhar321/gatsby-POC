@@ -1,57 +1,83 @@
 import React, { useEffect, useState } from 'react'
-//import { connect } from 'react-redux'
+import { connect } from 'react-redux'
 import Footer from '../components/footer/footer'
 import Header from '../components/header/header'
-//import { fetchEvents } from '../redux/events/eventAction'
-//import axiosInstance from '../services/AxiosInstance'
 import { graphql } from 'gatsby'
 import './home.css'
+import { fetchEvents } from '../redux/events/eventAction'
+import { fetchLanguage } from '../redux/events/eventAction'
 
-const Home = ({ data }) => {
-  const [allEvents, setEvents] = useState([])
+const Home = ({ data, eventsData, getEvents, getLanguage }) => {
   const [displayEvents, setDisplayEvents] = useState([])
   const [categories, setCategories] = useState([])
   useEffect(()=> {
-    //axiosInstance.get('events').then(response=> {
-        setEvents(data?.allRestApiEvents?.nodes)
-        setDisplayEvents(data?.allRestApiEvents?.nodes)
         setCategories(data?.allRestApiCategories?.nodes)
-        console.log("----",data,data?.allRestApiCategories?.nodes,categories)
+        getEvents()
+        console.log("---data prop-",data)
 
-        //To fetch data at run time using Gatsby fetch API
+        //To fetch data at run time
         // fetch(`http://20.114.244.229:1337/events`)
         // .then(response => response.json()) // parse JSON from request
         // .then(resultData => {
+        //   setEvents(resultData)
         //   console.log(resultData)
         // })
+  },[data, getEvents])
 
-    //}).catch(error=> console.log(error.message))
-  },[data])
+  const selectLanguage = (event) => {
+    console.log(event.target.value, eventsData)
+    getLanguage(event.target.value)
+    setDisplayEvents([])
+  }
 
-  const selectEvents = (event) => {
+  const selectEvent = (event) => {
     let events = []
-    allEvents.forEach(currentEvent => {
+    eventsData?.events?.forEach(currentEvent => {
         if (currentEvent?.Year === event.target.value) {
             events.push({
+                id: currentEvent?.id,
                 Year: currentEvent?.Year,
                 description: currentEvent?.description,
                 price: currentEvent?.price,
-                url: currentEvent?.Name?.url
+                url: currentEvent?.Name?.url,
+                view: currentEvent?.view
             })
         }
     })
-    setDisplayEvents(events)
+    if (events.length === 0) { setDisplayEvents([{missingEvents: true}]) }
+    else setDisplayEvents(events)
   }
+
+  const showEvents = (event) => {
+      if (!event.missingEvents) {
+        return (
+            <div className='card-container' key={event.id}>
+                <div className='card my-2'>
+                    <img src={`http://20.114.244.229:1337${event.url ? event.url : event.Name?.url }`} className='card-img-top' alt='card image1'/>
+                    <div className='card-body'>
+                        <p className='card-text'>
+                            {event.description}
+                        </p>
+                        <span>$ {event.price}</span>
+                        <br/>
+                        <button className='btn btn-info btn-sm card-btn mx-4 mt-3' tabIndex='0'>{event?.view}</button>
+                    </div>
+                </div>
+            </div>
+        )
+      }
+  }
+
   return (
     <>
       <Header/>
       <section>
           <div className='jumbotron'>
-              <select>
-                  <option>English</option>
-                  <option>Hindi</option>
-                  <option>Arabic</option>
-                  <option>French</option>
+              <select onChange={selectLanguage}>
+                  <option value="en">English</option>
+                  <option value="hi-IN">Hindi</option>
+                  <option value="ar-BH">Arabic</option>
+                  <option value="fr-BE">French</option>
               </select>
               <h2 className="soundstrom-heading">SOUNDSTORM IN NUMBERS</h2>
               <div className="row mt-5 mx-5">
@@ -123,7 +149,7 @@ const Home = ({ data }) => {
           </div>
           <div className='card-list'>
               <div className='filter'>
-                  <select onChange={selectEvents}>
+                  <select onChange={selectEvent}>
                       <option>Years</option>
                       <option value='2019'>2019</option>
                       <option value='2020'>2020</option>
@@ -133,21 +159,17 @@ const Home = ({ data }) => {
               </div>
               <div className='container'>
                   <div className='row'>
-                      { displayEvents && displayEvents.map((event, index)=> (
-                        <div className='card-container' key={index}>
-                            <div className='card my-2'>
-                                <img src={`http://20.114.244.229:1337${event.url ? event.url : event.Name?.url }`} className='card-img-top' alt='card image1'/>
-                                <div className='card-body'>
-                                    <p className='card-text'>
-                                        {event.description}
-                                    </p>
-                                    <span>$ {event.price}</span>
-                                    <br/>
-                                    <button className='btn btn-info btn-sm card-btn mx-4 mt-3' tabIndex='0'>{event?.view}</button>
-                                </div>
-                            </div>
-                        </div>
-                      ))}
+                      {
+                          displayEvents.length > 0 ? (
+                              displayEvents.map(event => showEvents(event))
+                            ) : (
+                                eventsData.loading ? <h2>...Loading</h2> :
+                                eventsData.eventsError ? <h2> {eventsData.eventsError} </h2> :
+                                eventsData?.events.map(event => (
+                                  showEvents(event)
+                           )))
+                       }
+
                   </div>
               </div>
           </div>
@@ -196,6 +218,7 @@ export const query = graphql`
  query {
     allRestApiEvents {
         nodes {
+          id
           Year
           Name { url }
           description
@@ -211,15 +234,15 @@ export const query = graphql`
     }
   }`
 
-// const mapStateToProps = state => {
-//     return {
-//         eventsData: state.events
-//     }
-// }
-// const mapDispatchToProps = dispatch => {
-//     return {
-//         fetchEvents: dispatch(fetchEvents())
-//     }
-// }
-//export default connect(mapStateToProps, mapDispatchToProps)(Home)
-export default Home
+const mapStateToProps = state => {
+    return {
+        eventsData: state.events,
+    }
+}
+const mapDispatchToProps = dispatch => {
+    return {
+        getEvents: ()=> dispatch(fetchEvents()),
+        getLanguage: (locale) => dispatch(fetchLanguage(locale))
+    }
+}
+export default connect(mapStateToProps, mapDispatchToProps)(Home)
