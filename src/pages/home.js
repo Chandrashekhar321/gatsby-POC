@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react'
 import { connect } from 'react-redux'
 import Footer from '../components/footer/footer'
 import Header from '../components/header/header'
-import { graphql } from 'gatsby'
+import { graphql, Link } from 'gatsby'
 import './home.css'
 import { fetchEvents } from '../redux/events/eventAction'
 import { fetchLanguage } from '../redux/events/eventAction'
@@ -13,8 +13,6 @@ const Home = ({ data, eventsData, getEvents, getLanguage }) => {
   useEffect(()=> {
         setCategories(data?.allRestApiCategories?.nodes)
         getEvents()
-        console.log("---data prop-",data)
-
         //To fetch data at run time
         // fetch(`http://20.114.244.229:1337/events`)
         // .then(response => response.json()) // parse JSON from request
@@ -60,7 +58,9 @@ const Home = ({ data, eventsData, getEvents, getLanguage }) => {
                         </p>
                         <span>$ {event.price}</span>
                         <br/>
-                        <button className='btn btn-info btn-sm card-btn mx-4 mt-3' tabIndex='0'>{event?.view}</button>
+                        <button className='btn btn-info btn-sm card-btn mx-4 mt-3' tabIndex='0'>
+                            <Link to={`/app/event-detail/${event.id}`}>{event?.view}</Link>
+                        </button>
                     </div>
                 </div>
             </div>

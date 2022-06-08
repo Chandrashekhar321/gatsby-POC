@@ -38,7 +38,8 @@ const LoginSection = () => {
       axiosInstance.post('auth/local', {
         identifier: values.email,
         password: values.password
-      }).then(response=>{
+      }).then(response=> {
+        localStorage.setItem('token', response?.data?.jwt)
         navigate("/home")
       }).catch(error=> alert(error.message))
     },
